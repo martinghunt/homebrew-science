@@ -1,8 +1,8 @@
 class Circlator < Formula
   desc "A tool to circularize genome assemblies"
   homepage "https://github.com/sanger-pathogens/circlator"
-  url "https://github.com/sanger-pathogens/circlator/archive/v0.16.0.tar.gz"
-  sha256 "c5331e1a687dacedd134356177671228e592c772df3306d6e037e55bd62d84df"
+  url "https://github.com/sanger-pathogens/circlator/archive/v1.2.0.tar.gz"
+  sha256 "46749b9e0dadb51b677e5cd1e3f1a0c1ca6c5139945a6cf4575f3fed818cf95d"
   head "https://github.com/sanger-pathogens/circlator.git"
 
   bottle do
@@ -20,7 +20,6 @@ class Circlator < Formula
   depends_on "prodigal"
   depends_on "samtools"
   depends_on "spades"
-  depends_on "homebrew/python/numpy" => ["with-python3"]
   depends_on "homebrew/python/pymummer"
 
   resource "pysam" do
@@ -29,19 +28,20 @@ class Circlator < Formula
   end
 
   resource "pyfastaq" do
-    url "https://pypi.python.org/packages/source/p/pyfastaq/pyfastaq-3.6.0.tar.gz"
-    sha256 "3a052466f89db1e1ac6cfb475117fdf8466ed319b62aabf9531e38f569b51588"
+    url "https://pypi.python.org/packages/source/p/pyfastaq/pyfastaq-3.10.0.tar.gz"
+    sha256 "a09604f5143abf27280abbdfcdb85878f760380876a971139b9536955f1cb73c"
   end
 
   resource "bio_assembly_refinement" do
-    url "https://pypi.python.org/packages/source/b/bio_assembly_refinement/bio_assembly_refinement-0.3.3.tar.gz"
-    sha256 "3547d54b357702d659d244ed6493b6553eb2e72dcf79e88cdae2c595b933bf91"
+    url "https://pypi.python.org/packages/source/b/bio_assembly_refinement/bio_assembly_refinement-0.5.0.tar.gz"
+    sha256 "8d5e8d6c5ad23602015f8099842b607928e46c1393c9acb3beddba8d0351f263"
   end
 
   def install
     version = Language::Python.major_minor_version "python3"
     ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{version}/site-packages"
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{version}/site-packages"
+    ENV.prepend_create_path "PYTHONPATH", HOMEBREW_PREFIX/"lib/python#{version}/site-packages"
 
     %w[pysam pyfastaq bio_assembly_refinement].each do |r|
       resource(r).stage do
@@ -55,6 +55,7 @@ class Circlator < Formula
   end
 
   test do
-    assert_match "Available commands", shell_output("circlator -h 2>&1", 0)
+    assert_match "Available commands", shell_output("#{bin}/circlator 2>&1", 0)
+    assert_match "1.2.0", shell_output("#{bin}/circlator version 2>&1", 0)
   end
 end
